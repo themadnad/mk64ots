@@ -1,14 +1,13 @@
 # Project: 		Mario Kart 64: One Try Simulator
 # Author:		Daniel "TheMadNad" Wynham
 # Date:			November 12th, 2021
-# Version:		0.1.3
+# Version:		0.1.4
 #
 # Find source code updates at https://github.com/themadnad/mk64ots
 
 # To be added in future versions:
 #
 # - Jokers
-# - NTSC/PAL conversion and preference
 # - More visible debug/time mode
 # - Fun "unlockables" for winning match for higher ranks
 # - Improved time calculations
@@ -46,7 +45,7 @@ elif platform == "win32":
     
 
 # Define variables
-version = '0.1.3'			# next version 0.1.4
+version = '0.1.4'			# next version 0.1.5
 
 
 
@@ -91,6 +90,9 @@ rank_basetime = [150,250,250,250,350,350,350,450,450,550,700,850,1000]
 default_rank = 8
 opponent_rank = default_rank
 
+# NTSC or PAL
+pal = False
+pal_convert = 1.202403373
 
 # Function to generate time based on rank and track
 def generate_time(opponent_rank, track_choice):
@@ -118,6 +120,7 @@ def generate_time(opponent_rank, track_choice):
         opponent_time += random_variance
         if(debug): debug_message += '\n Variance Accepted'
     if(debug): print(debug_message)
+    opponent_time = opponent_time * convert
     return opponent_time
     
     
@@ -162,22 +165,34 @@ def main():
     global your_sets_completed
     global opp_sets_completed
     global debug_message
+    global convert
+    global pal
+    global pal_convert
     running = True
-    settings = False
+    settings_opp = False
+    settings_reg = False
     game = False
     race = False
     debug_menu = False
     your_choice = True      # By default, players track choice
     while(running):
         # clear screen
+        if(pal): 
+            region = 'PAL'
+            convert = pal_convert
+        else:
+            region = 'NTSC'
+            convert = 1
         clear_screen()   # Note, if on Windows, change this to cls instead of clear. (Will add cross platform functionality later)
         print('Mario Kart 64: One Try Simulator!')
         print('Version:', version)
-        print('\nOpponent rank is ', standard(opponent_rank))
+        print('\nRegion: ', region)
+        print('Opponent rank is ', standard(opponent_rank))
         print('\n\n1) Begin One Try')
         print('2) Opponent Settings')
+        print('3) Region Settings')
         if(debug):
-            print('3) Debug Mode')
+            print('4) Debug Mode')
         print('q) Exit')
         menu_answer = input('\nChoice: ')
         clear_screen()
@@ -192,8 +207,9 @@ def main():
             oppFLAP = True
             oppSC = True
             trackpool = [True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True] # This says if track is available or not 
-        if(menu_answer == '2'): settings = True
-        if(menu_answer == '3' and debug): debug_menu = True
+        if(menu_answer == '2'): settings_opp = True
+        if(menu_answer == '3'): settings_reg = True
+        if(menu_answer == '4' and debug): debug_menu = True
         if(menu_answer == 'q' or menu_answer == 'Q'):running = False
 
         
@@ -241,8 +257,8 @@ def main():
             clear_screen()
         
         # Settings
-        while(settings):
-            #settings here
+        while(settings_opp):
+            #opponent settings here
             print('How strong is your opponent?\n\n')
             print(' 1: ', standard(1))
             print(' 2: ', standard(2))
@@ -264,8 +280,22 @@ def main():
                 #print(x)
                 if(settings_answer == str(x)): 
                     opponent_rank = x
-                    settings = False
+                    settings_opp = False
         
+        while(settings_reg):
+            #region settings settings here
+            print('What region/version of MK64 are you playing?\n\n')
+            print(' 1: NTSC')
+            print(' 2: PAL')
+            print('\n')
+            settings_answer = input('\nChoice: ')
+            clear_screen()
+            if(settings_answer == '1'): 
+                pal = False
+                settings_reg = False
+            if(settings_answer == '2'):
+                pal = True
+                settings_reg = False
         
         
         
@@ -284,6 +314,7 @@ def main():
             print('|                                                       |')
             print('@-------------------------------------------------------@')
             print('Opponent Rank: ', standard(opponent_rank))
+            print('Region: ', region)
             
             # If a track has been chosen and the race has been started
             if(race):
@@ -311,7 +342,7 @@ def main():
                     your_miliseconds = (e*10) + f
                     your_time = your_miliseconds + (your_seconds * 100) + (your_minutes * 60 * 100)
                     # This runs the function from earlier
-                    opp_time = generate_time(opponent_rank - 1, int(track_choice) - 1)
+                    opp_time = int(generate_time(opponent_rank - 1, int(track_choice) - 1))
                     opp_seconds = int((opp_time/100)%60)
                     opp_minutes = int((opp_time/(100*60))%60)
                     opp_miliseconds = opp_time - (opp_seconds*100) - (opp_minutes * 6000)
