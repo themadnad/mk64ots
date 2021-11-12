@@ -1,7 +1,7 @@
 # Project: 		Mario Kart 64: One Try Simulator
 # Author:		Daniel "TheMadNad" Wynham
 # Date:			November 12th, 2021
-# Version:		0.1.2b
+# Version:		0.1.3
 #
 # Find source code updates at https://github.com/themadnad/mk64ots
 
@@ -10,7 +10,6 @@
 # - Jokers
 # - NTSC/PAL conversion and preference
 # - More visible debug/time mode
-# - Windows/Linux cross platform functionality
 # - Fun "unlockables" for winning match for higher ranks
 # - Improved time calculations
 
@@ -37,8 +36,17 @@ import os
 import random
 
 
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    linux = True
+elif platform == "win32":
+    linux = False
+    
+    
+    
+
 # Define variables
-version = '0.1.2b'			# next version 0.1.3
+version = '0.1.3'			# next version 0.1.4
 
 
 
@@ -114,7 +122,9 @@ def generate_time(opponent_rank, track_choice):
     
     
 
-
+def clear_screen():
+    if(linux): os.system('clear')
+    else: os.system('cls')
 
 
 
@@ -160,7 +170,7 @@ def main():
     your_choice = True      # By default, players track choice
     while(running):
         # clear screen
-        os.system('clear')   # Note, if on Windows, change this to cls instead of clear. (Will add cross platform functionality later)
+        clear_screen()   # Note, if on Windows, change this to cls instead of clear. (Will add cross platform functionality later)
         print('Mario Kart 64: One Try Simulator!')
         print('Version:', version)
         print('\nOpponent rank is ', standard(opponent_rank))
@@ -170,7 +180,7 @@ def main():
             print('3) Debug Mode')
         print('q) Exit')
         menu_answer = input('\nChoice: ')
-        os.system('clear')
+        clear_screen()
         if(menu_answer == '1'): 
             game = True
             your_sets_completed = 0
@@ -228,7 +238,7 @@ def main():
                     count += 1
                 print(debug_message)
                 wait = input('\nPress ENTER to Continue ')
-            os.system('clear')
+            clear_screen()
         
         # Settings
         while(settings):
@@ -249,7 +259,7 @@ def main():
             print('13: ', standard(13))
             print('\n')
             settings_answer = input('\nChoice: ')
-            os.system('clear')
+            clear_screen()
             for x in range(1, 14):
                 #print(x)
                 if(settings_answer == str(x)): 
@@ -356,7 +366,7 @@ def main():
                 if(your_choice):
                     print('\nYour pick! Which track do you choose?')
                     track_choice = input('\nTrack: ')
-                    os.system('clear')
+                    clear_screen()
                     try:
                         your_choice_value = int(track_choice)
                         choice_valid = True
@@ -381,12 +391,12 @@ def main():
                             race = True
                     print('\nOpponent choice!\nYour opponent has chosen next track:', current_track, '\n\n')
                     wait = input('\nPress Enter to Continue ')
-                    os.system('clear')
+                    clear_screen()
             if(opp_sets_completed == 3):
                 game = False
                 print('\n\nYour opponent has won the match. Winning', opp_sets_completed, 'sets versus your', your_sets_completed,'. Better luck next time!')
                 wait = input('\nPress Enter to Continue ')
-                os.system('clear')
+                clear_screen()
             if(your_sets_completed == 3):
                 game = False
                 print('\n\nYou win the match! You took', your_sets_completed,'sets versus your opponent who took', opp_sets_completed,'. Awesome job, and nice racing!')
